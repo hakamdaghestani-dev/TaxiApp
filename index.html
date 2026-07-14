@@ -1918,6 +1918,8 @@ async function initApp() {
         document.getElementById('importOldBanner').style.display = 'block';
       }
       startUI();
+      // Stats nach Cloud-Load nochmal aktualisieren (echte Daten jetzt vorhanden)
+      setTimeout(() => { render(); }, 100);
     }
   } catch(e) {
     setSyncStatus('offline', '⚠️ Offline — lokale Daten');
@@ -2262,10 +2264,29 @@ function render() {
     // Stats auch bei leerer Schicht aktualisieren (Monats-Netto)
     const fmtE2 = n => n.toFixed(2).replace('.',',') + ' €';
     const monatStat2 = datum ? datum.slice(0,7) : '';
-    const monatNetto2 = monatStat2
+    let monatNetto2 = monatStat2
       ? fahrten.filter(f => f.datum && f.datum.startsWith(monatStat2))
           .reduce((s,f) => s + (f.anteil||0), 0)
       : 0;
+    // Falls keine Fahrten im gewählten Monat → letzten Monat mit Fahrten nehmen
+    let monatLbl2 = monatStat2;
+    if (monatNetto2 === 0 && fahrten.length > 0) {
+      const letzterMonat = fahrten
+        .map(f => f.datum.slice(0,7))
+        .filter((v,i,a) => a.indexOf(v)===i)
+        .sort().pop();
+      if (letzterMonat) {
+        monatNetto2 = fahrten.filter(f => f.datum.startsWith(letzterMonat))
+          .reduce((s,f) => s + (f.anteil||0), 0);
+        monatLbl2 = letzterMonat;
+        // Label aktualisieren
+        const [ly,lm] = letzterMonat.split('-');
+        const MN3 = {'01':'Jan','02':'Feb','03':'Mär','04':'Apr','05':'Mai','06':'Jun',
+                     '07':'Jul','08':'Aug','09':'Sep','10':'Okt','11':'Nov','12':'Dez'};
+        const lM2 = document.getElementById('statLabelMonat');
+        if (lM2) lM2.textContent = (MN3[lm]||lm) + ' Netto';
+      }
+    }
     const s1=document.getElementById('statHeuteNetto');
     const s2=document.getElementById('statHeuteTip');
     const s3=document.getElementById('statMonatNetto');
@@ -2452,10 +2473,24 @@ function renderSchichtAbrechnung(tf) {
   const datumStat  = document.getElementById('dateInput') ? document.getElementById('dateInput').value : '';
   const monatStat  = datumStat ? datumStat.slice(0,7) : '';
   const alleFahrten = typeof fahrten !== 'undefined' ? fahrten : [];
-  const monatNetto  = monatStat
+  let monatNetto  = monatStat
     ? alleFahrten.filter(f => f.datum && f.datum.startsWith(monatStat))
         .reduce((s,f) => s + (f.anteil||0), 0)
     : 0;
+  // Falls keine Fahrten im gewählten Monat → letzten Monat nehmen
+  if (monatNetto === 0 && alleFahrten.length > 0) {
+    const letzterM = alleFahrten.map(f=>f.datum.slice(0,7))
+      .filter((v,i,a)=>a.indexOf(v)===i).sort().pop();
+    if (letzterM && letzterM !== monatStat) {
+      monatNetto = alleFahrten.filter(f=>f.datum.startsWith(letzterM))
+        .reduce((s,f)=>s+(f.anteil||0),0);
+      const [ly,lm2] = letzterM.split('-');
+      const MN4={'01':'Jan','02':'Feb','03':'Mär','04':'Apr','05':'Mai','06':'Jun',
+                 '07':'Jul','08':'Aug','09':'Sep','10':'Okt','11':'Nov','12':'Dez'};
+      const lM3 = document.getElementById('statLabelMonat');
+      if (lM3) lM3.textContent = (MN4[lm2]||lm2) + ' Netto';
+    }
+  }
   const el1 = document.getElementById('statHeuteNetto');
   const el2 = document.getElementById('statHeuteTip');
   const el3 = document.getElementById('statMonatNetto');
