@@ -1523,9 +1523,10 @@ function updateSchichtStats() {
   const el1 = document.getElementById('statHeuteNetto');
   const el2 = document.getElementById('statHeuteTip');
   const el3 = document.getElementById('statMonatNetto');
-  if (el1) el1.textContent = heuteNetto > 0 ? fmtN(heuteNetto) : '—';
-  if (el2) el2.textContent = heuteTip   > 0 ? fmtN(heuteTip)   : '—';
-  if (el3) el3.textContent = monatNetto > 0 ? fmtN(monatNetto)  : '—';
+  const fmtE = n => n.toFixed(2).replace('.',',')+' €';
+  if (el1) el1.textContent = heuteNetto > 0 ? fmtE(heuteNetto) : '—';
+  if (el2) el2.textContent = heuteTip   > 0 ? fmtE(heuteTip)   : '—';
+  if (el3) el3.textContent = monatNetto > 0 ? fmtE(monatNetto)  : '—';
 }
 
 function displayZahlart(z) {
