@@ -1293,7 +1293,7 @@
         <div style="font-size:0.65rem;font-weight:bold;color:var(--blue);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px">🧾 Zahlungssystem</div>
         <div class="field">
           <label>Rechnungsnummer</label>
-          <input type="text" id="rechnungNr" placeholder="z.B. RE-2026-0042" autocomplete="off">
+          <input type="text" id="rechnungNr" placeholder="z.B. 20260042" inputmode="numeric" autocomplete="off">
         </div>
         <div class="rechnung-hint">Wird automatisch in Google Sheets gespeichert</div>
       </div>
@@ -1511,8 +1511,9 @@ function autoFillBezahlt() {
 
 
 function updateSchichtStats() {
-  const datum    = document.getElementById('dateInput') ? document.getElementById('dateInput').value : '';
-  if (!datum) return;
+  const dateEl = document.getElementById('dateInput');
+  const datum  = dateEl ? dateEl.value : '';
+  if (!datum) { setTimeout(updateSchichtStats, 100); return; }
   const monat    = datum.slice(0,7);
   const tagF     = fahrten.filter(f => f.datum === datum);
   const monatF   = fahrten.filter(f => f.datum.startsWith(monat));
@@ -1934,6 +1935,7 @@ function startUI() {
   updateSchichtBadge();
   loadDriverProfile();
   render();
+  updateSchichtStats();
   // Schichtzeiten für aktuelles Datum laden
   const tagF0 = fahrten.filter(f => f.datum === defaultDate);
   if (tagF0.length) {
