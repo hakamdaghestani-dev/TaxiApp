@@ -2417,6 +2417,24 @@ function renderSchichtAbrechnung(tf) {
   if(netto>0)      { document.getElementById('saNettLabel').textContent='💸 Du zahlst dem Unternehmer'; document.getElementById('saNettSub').textContent='Barzahlung beim Schichtende'; document.getElementById('saNetto').textContent=fmt(netto); }
   else if(netto<0) { document.getElementById('saNettLabel').textContent='✅ Unternehmer zahlt dir'; document.getElementById('saNettSub').textContent='Mehr Karte/Funk als Anteil'; document.getElementById('saNetto').textContent=fmt(Math.abs(netto)); }
   else             { document.getElementById('saNettLabel').textContent='✓ Quitt'; document.getElementById('saNettSub').textContent=''; document.getElementById('saNetto').textContent='0,00 €'; }
+
+  // ── Statistik-Kacheln befüllen ──
+  const sumAnteil = tf.reduce((s,f) => s + (f.anteil||0), 0);
+  const sumTip    = tf.reduce((s,f) => s + (f.tip||0),    0);
+  const fmtE      = n => n.toFixed(2).replace('.',',') + ' €';
+  const datum     = tf.length ? tf[0].datum : '';
+  const monat     = datum ? datum.slice(0,7) : '';
+  const monatNetto = monat
+    ? (typeof fahrten !== 'undefined' ? fahrten : [])
+        .filter(f => f.datum.startsWith(monat))
+        .reduce((s,f) => s + (f.anteil||0), 0)
+    : 0;
+  const el1 = document.getElementById('statHeuteNetto');
+  const el2 = document.getElementById('statHeuteTip');
+  const el3 = document.getElementById('statMonatNetto');
+  if (el1) el1.textContent = sumAnteil > 0 ? fmtE(sumAnteil) : '—';
+  if (el2) el2.textContent = sumTip    > 0 ? fmtE(sumTip)    : '—';
+  if (el3) el3.textContent = monatNetto> 0 ? fmtE(monatNetto) : '—';
 }
 
 // ── Übersicht ────────────────────────────────────────────
