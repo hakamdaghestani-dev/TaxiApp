@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Taxi Schichtabrechnung</title>
 
 
@@ -1028,6 +1028,7 @@
     font-size: 1.2rem; cursor: pointer; padding: 0;
   }
 
+input, select, textarea { font-size: 16px !important; }
 </style>
 </head>
 <body>
@@ -1933,7 +1934,7 @@ function startUI() {
   // Datum setzen
   const todayISO = new Date().toISOString().split('T')[0];
   const dates = [...new Set(fahrten.map(f=>f.datum))].sort();
-  const defaultDate = todayISO; // Immer heutiges Datum beim Start
+  const defaultDate = dates.includes(todayISO) ? todayISO : (dates[dates.length-1] || todayISO);
   dateInput.value = defaultDate;
   updateSchichtBadge();
   loadDriverProfile();
